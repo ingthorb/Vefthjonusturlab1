@@ -86,20 +86,22 @@ namespace WebApplication.Controllers
             };
             //Pick Random people in the courses
                 Random rand = new Random();
+                 //students = new List<Student>();
                 for(int i = 0; i < 3; i++)
-                { 
+                {      
                     int r = rand.Next(students.Count);
                     courses[0].students.Add(students[r]);
                 }
                 for(int i = 0; i < 3; i++)
                 {
-                    int r2 = rand.Next(0,6);
+                    int r2 = rand.Next(students.Count);
                     courses[1].students.Add(students[r2]);
                 }
             }
             
           }
         }
+    
       [HttpGet]
       [Route("/api/courses")]
       //[Route("/courses/{ID:int}",Name="GetCourse")]
@@ -107,6 +109,32 @@ namespace WebApplication.Controllers
        {
             return courses;
        }
+
+       /*[HttpGet]
+      [Route("api/courses/{ID:int}/students", Name="GetStudents")]
+      public IActionResult GetStudents(int id) 
+       {
+           foreach(Course c in courses)
+           {
+               if(c.ID == id)
+               {
+                   if(c.students == null)
+                   {
+                       return NotFound();
+                   }
+                   else
+                   {
+                     return Ok(c.students);
+                   }
+               }
+               else
+               {
+                   return NotFound();
+               }
+           }
+           //Else not found
+           return NotFound();
+       }*/
       [HttpGet]
       [Route("api/courses/{ID:int}",Name="GetCourse")]
       public IActionResult GetCourseByID(int id) 
@@ -115,7 +143,6 @@ namespace WebApplication.Controllers
            {
                if(c.ID == id)
                {
-                   //Redirect not working
                   return Ok(c);
                }
            }
@@ -124,29 +151,45 @@ namespace WebApplication.Controllers
        }
 
      [HttpPost]
+     [Route("api/courses")]    
      // ResponseType ??
       //[Route("/courses/{ID:int}",Name="GetCourse")]
-      public IActionResult CreateCourse(int id,string name, string templateID, DateTime startdate, DateTime enddate) 
+      public IActionResult CreateCourse([FromBody] Course course) 
        {
-
-           var course = new Course{
-                    ID = id,
-                    Name = name,
-                    TemplateID = templateID,
-                    StartDate = startdate,
-                    EndDate = enddate
-           
-           };
+          // var course = cour;
+          if(course == null)
+          {
+              return BadRequest();
+          }
+           int id2 = course.ID;
            courses.Add(course);
            var location = Url.Link("GetCourse", new { id = course.ID });  
            return Created(location,course);
        }
 
      [HttpPut]
-      //[Route("/courses/{ID:int}",Name="GetCourse")]
-      public List<Course> UpdateCourse(int id) 
+     [Route("api/courses/{ID:int}")]
+      public IActionResult UpdateCourse(int id, [FromBody] Course course) 
        {
-            return courses;
+           if(course == null)
+           {
+               return BadRequest();
+           }
+           int i = 0;
+           //var tsdf = courses.Find(course.id);
+           foreach(Course c in courses)
+           { 
+               if(c.ID == id)
+               {
+                   //courses.Update not working
+                   courses.Remove(c);
+                   courses.Insert(i,course);
+                   var location = Url.Link("GetCourse", new { id = course.ID });  
+                   return NoContent();
+               }
+               i++;
+           }
+            return NotFound();
        }
 
       [HttpDelete]
