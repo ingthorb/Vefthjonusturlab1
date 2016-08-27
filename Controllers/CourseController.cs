@@ -200,7 +200,6 @@ namespace WebApplication.Controllers
                {
                    courses.Remove(c);
                    courses.Insert(index,course);
-                   var location = Url.Link("GetCourse", new { id = course.ID });  
                    return NoContent();
                }
                index++;
@@ -222,9 +221,7 @@ namespace WebApplication.Controllers
                    return NoContent();
                }
            }
-
         return NotFound();
-           
       }
 
 }
